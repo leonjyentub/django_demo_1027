@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-people me-2"></i>教師課程管理</h1>
+    <p class="subtitle">管理您所授課程與查看選課學生名單</p>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-book me-2"></i>我的課程</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>課程代碼</th>
+                        <th>課程名稱</th>
+                        <th>學分</th>
+                        <th>課程容量</th>
+                        <th>說明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses %}
+                    <tr>
+                        <td><span class="course-code">{{ course.code }}</span></td>
+                        <td class="fw-semibold">{{ course.name }}</td>
+                        <td>{{ course.credits }}</td>
+                        <td>{{ course.capacity }}</td>
+                        <td class="text-muted">{{ course.description|default:'-'|truncatewords:15 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">尚未指派課程</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-calendar-check me-2"></i>我的開課時段</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>課程</th>
+                        <th>學期</th>
+                        <th>上課時間</th>
+                        <th>教室</th>
+                        <th>容量</th>
+                        <th class="text-center">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for offering in offerings %}
+                    <tr>
+                        <td><span class="course-code">{{ offering.course.code }}</span> {{ offering.course.name }}</td>
+                        <td>{{ offering.semester }}</td>
+                        <td>{{ offering.get_day_of_week_display }} {{ offering.start_time|time:"H:i" }} - {{ offering.end_time|time:"H:i" }}</td>
+                        <td>{{ offering.room|default:'待安排' }}</td>
+                        <td>{{ offering.effective_capacity }}</td>
+                        <td class="text-center">
+                            <a href="{% url 'teacher_offering_students' offering.id %}" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-people me-1"></i>查看選課名單
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">尚無開課時段</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

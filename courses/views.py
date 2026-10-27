@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from .models import CourseOffering
+from .models import CourseOffering, Course
 from enrollments.models import Enrollment
 
 
@@ -73,4 +73,27 @@ def my_timetable(request):
         timetable[e.offering.day_of_week].append(e)
 
     return render(request, 'courses/timetable.html', {'timetable': timetable, 'days': days, 'enrollments': enrollments})
+
+
+@login_required
+def teacher_dashboard(request):
+    if getattr(request.user, 'role', None) != 'teacher':
+        messages.error(request, '僅教師可使用此功能。')
+        return redirect('offering_list')
+
+    courses = Course.objects.filter(teacher=request.user).prefetch_related('offerings')
+    offerings = CourseOffering.objects.filter(course__teacher=request.user).select_related('course')
+    return render(request, 'courses/teacher_dashboard.html', {'courses': courses, 'offerings': offerings})
+
+
+@login_required
+def teacher_offering_students(request, offering_id):
+    if getattr(request.user, 'role', None) != 'teacher':
+        messages.error(request, '僅教師可使用此功能。')
+        return redirect('offering_list')
+
+    offering = get_object_or_404(CourseOffering, pk=offering_id, course__teacher=request.user)
+    enrollments = Enrollment.objects.filter(offering=offering, status='enrolled').select_related('student')
+    return render(request, 'courses/teacher_offering_students.html', {'offering': offering, 'enrollments': enrollments})
+
 
