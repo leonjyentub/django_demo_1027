@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-calendar-week me-2"></i>我的課表</h1>
+    <p class="subtitle">個人選課清單與每週課程時程</p>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-list-check me-2"></i>已選課程</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>課程代碼</th>
+                        <th>課程名稱</th>
+                        <th>星期</th>
+                        <th>上課時間</th>
+                        <th>教室</th>
+                        <th>授課教師</th>
+                        <th>學分</th>
+                        <th class="text-center">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in enrollments %}
+                    <tr>
+                        <td><span class="course-code">{{ e.offering.course.code }}</span></td>
+                        <td class="fw-semibold">{{ e.offering.course.name }}</td>
+                        <td>{{ e.offering.get_day_of_week_display }}</td>
+                        <td>{{ e.offering.start_time|time:"H:i" }} - {{ e.offering.end_time|time:"H:i" }}</td>
+                        <td>{{ e.offering.room|default:'待安排' }}</td>
+                        <td>{{ e.offering.course.teacher.get_full_name|default:e.offering.course.teacher.username|default:'-' }}</td>
+                        <td>{{ e.offering.course.credits }}</td>
+                        <td class="text-center">
+                            <a href="{% url 'drop' e.offering.id %}" class="btn btn-outline-danger btn-sm" onclick="return confirm('確定要退選 {{ e.offering.course.name }} 嗎？');">
+                                <i class="bi bi-dash-circle me-1"></i>退選
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">
+                            <i class="bi bi-calendar-x display-6 d-block mb-2"></i>
+                            尚未選課，前往<a href="{% url 'offering_list' %}">課程列表</a>加選課程
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-grid me-2"></i>每週課表</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0 text-center">
+                <thead>
+                    <tr>
+                        <th style="width: 120px;">時段</th>
+                        <th>星期一</th>
+                        <th>星期二</th>
+                        <th>星期三</th>
+                        <th>星期四</th>
+                        <th>星期五</th>
+                        <th>星期六</th>
+                        <th>星期日</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="fw-semibold bg-light">課程安排</td>
+                        <td class="align-top text-start">
+                            {% for e in timetable.0 %}
+                                <div class="border-start border-4 border-primary ps-2 mb-2 py-1">
+                                    <div class="fw-semibold text-primary">{{ e.offering.course.code }}</div>
+                                    <div class="small">{{ e.offering.course.name }}</div>
+                                    <div class="small text-muted">{{ e.offering.start_time|time:"H:i" }}-{{ e.offering.end_time|time:"H:i" }}</div>
+                                    <div class="small text-muted"><i class="bi bi-geo-alt"></i> {{ e.offering.room|default:'-' }}</div>
+                                </div>
+                            {% empty %}
+                                <span class="text-muted small">-</span>
+                            {% endfor %}
+                        </td>
+                        <td class="align-top text-start">
+                            {% for e in timetable.1 %}
+                                <div class="border-start border-4 border-success ps-2 mb-2 py-1">
+                                    <div class="fw-semibold text-success">{{ e.offering.course.code }}</div>
+                                    <div class="small">{{ e.offering.course.name }}</div>
+                                    <div class="small text-muted">{{ e.offering.start_time|time:"H:i" }}-{{ e.offering.end_time|time:"H:i" }}</div>
+                                    <div class="small text-muted"><i class="bi bi-geo-alt"></i> {{ e.offering.room|default:'-' }}</div>
+                                </div>
+                            {% empty %}
+                                <span class="text-muted small">-</span>
+                            {% endfor %}
+                        </td>
+                        <td class="align-top text-start">
+                            {% for e in timetable.2 %}
+                                <div class="border-start border-4 border-info ps-2 mb-2 py-1">
+                                    <div class="fw-semibold text-info">{{ e.offering.course.code }}</div>
+                                    <div class="small">{{ e.offering.course.name }}</div>
+                                    <div class="small text-muted">{{ e.offering.start_time|time:"H:i" }}-{{ e.offering.end_time|time:"H:i" }}</div>
+                                    <div class="small text-muted"><i class="bi bi-geo-alt"></i> {{ e.offering.room|default:'-' }}</div>
+                                </div>
+                            {% empty %}
+                                <span class="text-muted small">-</span>
+                            {% endfor %}
+                        </td>
+                        <td class="align-top text-start">
+                            {% for e in timetable.3 %}
+                                <div class="border-start border-4 border-warning ps-2 mb-2 py-1">
+                                    <div class="fw-semibold text-warning">{{ e.offering.course.code }}</div>
+                                    <div class="small">{{ e.offering.course.name }}</div>
+                                    <div class="small text-muted">{{ e.offering.start_time|time:"H:i" }}-{{ e.offering.end_time|time:"H:i" }}</div>
+                                    <div class="small text-muted"><i class="bi bi-geo-alt"></i> {{ e.offering.room|default:'-' }}</div>
+                                </div>
+                            {% empty %}
+                                <span class="text-muted small">-</span>
+                            {% endfor %}
+                        </td>
+                        <td class="align-top text-start">
+                            {% for e in timetable.4 %}
+                                <div class="border-start border-4 border-danger ps-2 mb-2 py-1">
+                                    <div class="fw-semibold text-danger">{{ e.offering.course.code }}</div>
+                                    <div class="small">{{ e.offering.course.name }}</div>
+                                    <div class="small text-muted">{{ e.offering.start_time|time:"H:i" }}-{{ e.offering.end_time|time:"H:i" }}</div>
+                                    <div class="small text-muted"><i class="bi bi-geo-alt"></i> {{ e.offering.room|default:'-' }}</div>
+                                </div>
+                            {% empty %}
+                                <span class="text-muted small">-</span>
+                            {% endfor %}
+                        </td>
+                        <td class="align-top text-start">
+                            {% for e in timetable.5 %}
+                                <div class="border-start border-4 border-secondary ps-2 mb-2 py-1">
+                                    <div class="fw-semibold text-secondary">{{ e.offering.course.code }}</div>
+                                    <div class="small">{{ e.offering.course.name }}</div>
+                                    <div class="small text-muted">{{ e.offering.start_time|time:"H:i" }}-{{ e.offering.end_time|time:"H:i" }}</div>
+                                    <div class="small text-muted"><i class="bi bi-geo-alt"></i> {{ e.offering.room|default:'-' }}</div>
+                                </div>
+                            {% empty %}
+                                <span class="text-muted small">-</span>
+                            {% endfor %}
+                        </td>
+                        <td class="align-top text-start">
+                            {% for e in timetable.6 %}
+                                <div class="border-start border-4 border-dark ps-2 mb-2 py-1">
+                                    <div class="fw-semibold text-dark">{{ e.offering.course.code }}</div>
+                                    <div class="small">{{ e.offering.course.name }}</div>
+                                    <div class="small text-muted">{{ e.offering.start_time|time:"H:i" }}-{{ e.offering.end_time|time:"H:i" }}</div>
+                                    <div class="small text-muted"><i class="bi bi-geo-alt"></i> {{ e.offering.room|default:'-' }}</div>
+                                </div>
+                            {% empty %}
+                                <span class="text-muted small">-</span>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
